@@ -53,11 +53,12 @@ router.post('/', async (req, res) => {
 //esperando receber o id
 router.get('/:id', async (req, res) => {
     try {
-        let checklist = await Checklist.findById(req.params.id);
-        res.status(200).render('checklists/show', { checklist: checklist});
+        let checklist = await Checklist.findById(req.params.id).populate('task');
+        let task = { checklist: {...checklist.tasks}}
+        res.json(checklist)
+        res.status(200).render('checklists/show', { checklist: checklist, task: task});
     } catch (error) {
-        res.status(200).render('pages/error', {error: 'erro ao exibir'});
-        res.status(422).json(error);
+        res.status(200).render('pages/error', {error: 'erro ao exibir'} );
     }
 })
 
@@ -79,9 +80,10 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         let checklist = await Checklist.findByIdAndRemove(req.params.id);
-        res.status(200).json(checklist);
+        res.status(200).redirect('/checklists');
     } catch (error) {
         res.status(422).json(error);
+        res.status(200).render('pages/error', {error: 'erro ao exibir'});
     }
 })
 //Exportar arquivo 
